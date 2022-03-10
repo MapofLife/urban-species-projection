@@ -19,12 +19,10 @@
 
 // Countries
 // Natural Earth 50m countries dataset www.naturalearthdata.com
-// var countries = ee.FeatureCollection('users/RDS/ne_50m_admin_0_countries');
 var countries = ee.FeatureCollection('projects/map-of-life/habitat_projection/urban/countries');
 
 // Cities
 // Natural Earth 10m populated places dataset www.naturalearthdata.com
-// var cities = ee.FeatureCollection('users/RDS/ne_10m_populated_places');
 var cities = ee.FeatureCollection('projects/map-of-life/habitat_projection/urban/cities');
 
 
@@ -61,7 +59,7 @@ var ssp5 = ee.Image('projects/map-of-life/habitat_projection/urban/urban-ssp5').
 Map.addLayer(ssp5.selfMask(), {palette: ['FCECF8', 'FC01BD']}, 'urbanLand_ssp5_2050', false);
 
 // The DEM
-var DEM = ee.Image("projects/map-of-life/habitat_projection/src_gme/04040405428907908306-08319720230328335274");
+var DEM = ee.Image("projects/map-of-life/habitat_projection/urban/DEM");
 
 //The GLOBIO LULC forecasts are based upon the ESA's CCI Landcover dataset for 2015 - https://www.esa-landcover-cci.org/ 
 //read in the CCI Landcover data
@@ -74,14 +72,12 @@ var cci_2015 = ee.Image('projects/map-of-life/habitat_projection/urban/cci_2015'
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 //Get the expert range map for the species
-var mammals = ee.ImageCollection('projects/map-of-life/distribution/range_maps_ic/mammals').map(function(img) {return img.set('taxa', 'mammals')});
-//Filter to a single species of interest
-var sampleSpp_rangeMaps = mammals.filter(ee.Filter.eq("name", "Nycticebus_javanicus"));
+var sampleSpp = ee.ImageCollection(ee.Image("projects/map-of-life/habitat_projection/urban/demo/Oreophasis_derbianus"));
 
 //Define habitat preferences for species of interest
 var sampleSpp_prefs = ee.Dictionary({
-elev_max: 8000, //Elevation range
-elev_min: 0, 
+elev_max: 3400, //Elevation range
+elev_min: 1100, 
 //Habitat preferences
 habitats_lst: [1, //Evergreen Needleleaf Forests 
   2, //Evergreen Broadleaf Forests 
@@ -91,7 +87,7 @@ habitats_lst: [1, //Evergreen Needleleaf Forests
 });
 
 //Add the habitat prefs to the range map image
-var sampleSpp = sampleSpp_rangeMaps.map(function(i) {return i.set(sampleSpp_prefs)})
+sampleSpp = sampleSpp.map(function(i) {return i.set(sampleSpp_prefs)});
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -554,7 +550,7 @@ return hsrIC;
 ///////////////////////////////////////////////////////////////////////////////////
 var sampleSpp_ssp1_noRegain_results = ee.ImageCollection(habitatProjectionFunction(sampleSpp, ssp1_globio_noRegain_constantUrban, ssp1, ssp1_globio_constantUrban, ssp1Clusters)); 
 print("sampleSpp_ssp1_noRegain_results", sampleSpp_ssp1_noRegain_results);
-Map.setCenter(108.04699901599447, -7.046384610366608, 7)
+Map.setCenter(-91.25343155171775, 15.365242314016381, 7) 
 Map.addLayer(sampleSpp_ssp1_noRegain_results.first().select(["2015"]), {min:0, max:1, palette:["red"]}, "2015_sampleSpp_ssp1_noRegain_results");
 Map.addLayer(sampleSpp_ssp1_noRegain_results.first().select(["2050"]).selfMask(), {min:0, max:1, palette:["green"]}, "2050_sampleSpp_ssp1_noRegain_results");
 
